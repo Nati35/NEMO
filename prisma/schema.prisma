@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User Model
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  
+  // App specific fields
+  isPro         Boolean   @default(false)
+  isStudent     Boolean   @default(false) // For beta access
+  streakDays    Int       @default(0)
+  lastStudyDate DateTime?
+  points        Int       @default(0)
+  selectedTheme String    @default("light")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  decks         Deck[]
+  studySessions StudySession[]
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Deck Model
+model Deck {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String   @default("כללי")
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards       Card[]
+  createdAt   DateTime @default(now())
+  isPublic    Boolean  @default(false)
+  downloads   Int      @default(0)
+  
+  updatedAt   DateTime @updatedAt
+}
+
+// Card Model
+model Card {
+  id        String   @id @default(cuid())
+  front     String   // Question/Term
+  back      String   // Answer/Definition
+  
+  // Media support (Premium only)
+  // maintained for backward compatibility or can be deprecated
+  imageUrl  String? 
+  audioUrl  String?
+
+  images    CardImage[]
+
+  deckId    String
+  deck      Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  // SM-2 Algorithm Data
+  nextReview DateTime @default(now())
+  interval   Int      @default(0) // Days
+  repetition Int      @default(0)
+  efactor    Float    @default(2.5) // Easiness Factor
+  
+  isSuspended Boolean @default(false)
+
+  studySessions StudySession[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CardImage {
+  id        String   @id @default(cuid())
+  url       String
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// Study Session (Log of each review)
+model StudySession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  rating    Int      // 1-4 (Again, Hard, Good, Easy)
+  scheduledDate DateTime? // When it was supposed to be reviewed
+  actualDate    DateTime  @default(now()) // When it was actually reviewed
+}
