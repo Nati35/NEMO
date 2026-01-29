@@ -15,6 +15,7 @@ async function getCommunityDecks() {
     // and pretend they are community decks, OR I'll rely on the user manually setting one to public.
     // Let's just fetch everything to populate the UI.
     const decks = await prisma.deck.findMany({
+        where: { isPublic: true },
         orderBy: { updatedAt: 'desc' },
         include: {
             user: { select: { name: true, image: true } },

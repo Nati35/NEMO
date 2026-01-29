@@ -6,11 +6,17 @@ import { revalidatePath } from 'next/cache'
 
 const prisma = new PrismaClient()
 
-// TODO: In a real app, get the userId from the session (NextAuth)
-// For now, we'll use the ID of the seeded user 'Netanel'
-const HARDCODED_USER_EMAIL = 'student@example.com'
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
+// ... (prisma init) ...
 
 export async function createDeck(formData: FormData) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+        throw new Error('Unauthorized');
+    }
+
     const title = formData.get('title') as string
     const description = formData.get('description') as string
     const category = (formData.get('category') as string) || "כללי"
@@ -21,13 +27,13 @@ export async function createDeck(formData: FormData) {
         throw new Error('Title is required')
     }
 
-    // Find the seeded user
+    // Find the real user
     const user = await prisma.user.findUnique({
-        where: { email: HARDCODED_USER_EMAIL }
+        where: { email: session.user.email }
     })
 
     if (!user) {
-        throw new Error('User not found. Please run the seed script.')
+        throw new Error('User not found in database.')
     }
 
     try {
@@ -66,13 +72,13 @@ import { cookies } from 'next/headers';
 // ... (existing createDeck)
 
 export async function updateTheme(themeId: string) {
-    const user = await prisma.user.findFirst();
+    const session = await getServerSession(authOptions);
 
-    // 1. Try DB Update (Best Effort)
-    if (user) {
+    // 1. Try DB Update (Best Effort) if logged in
+    if (session?.user?.email) {
         try {
             await prisma.user.update({
-                where: { id: user.id },
+                where: { email: session.user.email },
                 data: { selectedTheme: themeId } as any
             });
         } catch (e) {

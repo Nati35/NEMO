@@ -4,12 +4,16 @@ import AnalyticsCharts from '@/components/AnalyticsCharts';
 
 const prisma = new PrismaClient();
 
-const HARDCODED_USER_EMAIL = 'student@example.com';
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 
-async function getStats() {
+
+
+async function getStats(userEmail: string) {
     // Fetch user by email to ensure consistency with Dashboard
     const user = await prisma.user.findUnique({
-        where: { email: HARDCODED_USER_EMAIL },
+        where: { email: userEmail },
         include: {
             studySessions: {
                 orderBy: { actualDate: 'asc' }
@@ -88,7 +92,12 @@ async function getStats() {
 }
 
 export default async function StatsPage() {
-    const stats = await getStats();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+        redirect('/login');
+    }
+
+    const stats = await getStats(session.user.email);
     if (!stats) return <div>Loading...</div>;
 
     const { user, totalReviews, cardsLearned, accuracy, activityData, cardStatusData, reviewsOverTime } = stats;

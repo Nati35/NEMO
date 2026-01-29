@@ -13,8 +13,20 @@ interface PageProps {
     }
 }
 
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+
 export default async function LibraryPage({ searchParams }: PageProps) {
-    const user = await prisma.user.findFirst();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+        redirect('/login');
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email }
+    });
+
     if (!user) return <div>User not found</div>;
 
     const query = searchParams.q || '';
