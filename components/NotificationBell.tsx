@@ -82,7 +82,7 @@ export function NotificationBell() {
                     <div className="max-h-[300px] overflow-y-auto">
                         {dueCards > 0 && (
                             <div className="p-4 border-b border-slate-50 bg-blue-50/50 hover:bg-blue-50 transition-colors cursor-pointer group">
-                                <Link href="/study" onClick={() => setIsOpen(false)}>
+                                <Link href="/" onClick={() => setIsOpen(false)}>
                                     <div className="flex gap-3">
                                         <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
                                             <BookOpen size={14} />
