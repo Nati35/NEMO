@@ -23,12 +23,23 @@ const THEME_STYLES: Record<string, string> = {
     sea: 'bg-cyan-50 text-cyan-900',
 };
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
 export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const user = await prisma.user.findFirst();
+    const session = await getServerSession(authOptions);
+    let user = null;
+
+    if (session?.user?.email) {
+        user = await prisma.user.findUnique({
+            where: { email: session.user.email }
+        });
+    }
+
     const cookieStore = await cookies();
 
     // Prioritize Cookie (fastest/resilient), then DB, then default
@@ -40,7 +51,8 @@ export default async function RootLayout({
             <body className={`${inter.className} ${themeClass} antialiased min-h-screen flex overflow-hidden transition-colors duration-500`}>
                 <Sidebar />
                 <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                    <TopHeader userXp={user?.points || 0} />
+                    <TopHeader user={user} />
+
                     <main className="flex-1 overflow-y-auto">
                         {children}
                     </main>

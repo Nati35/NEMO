@@ -5,7 +5,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback } from 'react';
 import { LevelBadge } from './LevelBadge';
 
-export default function TopHeader({ userXp = 0 }: { userXp?: number }) {
+export default function TopHeader({ user }: { user?: { name?: string | null, image?: string | null, points?: number } | null }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -26,6 +26,10 @@ export default function TopHeader({ userXp = 0 }: { userXp?: number }) {
         return () => clearTimeout(timeoutId);
     }, [searchParams, pathname, replace]);
 
+    const displayName = user?.name || "אורח";
+    const displayImage = user?.image;
+    const displayXp = user?.points || 0;
+
     return (
         <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-40">
             {/* Search Bar Removed as per request */}
@@ -40,14 +44,19 @@ export default function TopHeader({ userXp = 0 }: { userXp?: number }) {
                 <div className="flex items-center gap-3 cursor-pointer group">
                     <div className="text-left text-right">
                         <div className="flex items-center gap-2 justify-end">
-                            <p className="text-xs font-bold text-slate-900">ד"ר יובל כהן</p>
-                            <LevelBadge xp={userXp || 350} />
+                            <p className="text-xs font-bold text-slate-900">{displayName}</p>
+                            <LevelBadge xp={displayXp} />
                         </div>
-                        <p className="text-[10px] text-slate-400">סטודנט לרפואה, שנה ד'</p>
+                        <p className="text-[10px] text-slate-400">משתמש NEMO</p>
                     </div>
                     <div className="w-10 h-10 bg-slate-200 rounded-full overflow-hidden border-2 border-transparent group-hover:border-blue-600 transition-colors">
-                        {/* Using a reliable placeholder avatar */}
-                        <div className="w-full h-full bg-gradient-to-tr from-blue-500 to-teal-400" />
+                        {displayImage ? (
+                            <img src={displayImage} alt={displayName} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="w-full h-full bg-gradient-to-tr from-blue-500 to-teal-400 flex items-center justify-center text-white font-bold text-xs">
+                                {displayName.charAt(0)}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

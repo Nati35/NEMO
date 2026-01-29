@@ -195,9 +195,9 @@ async function getDashboardData(userEmail: string, query?: string) {
     learnedCount,
     streak: user.streakDays,
     activeDeckId: activeDeckIdSmart,
-    memoryStrength,
-    weeklyHours,
-    chartData: normalizedChart,
+    memoryStrength: memoryStrength || 0,
+    weeklyHours: weeklyHours || "0.0",
+    chartData: normalizedChart || [],
     userName: user.name || 'סטודנט'
   };
 }
@@ -260,7 +260,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
       <div className="mb-8 flex justify-between items-end">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-3xl font-black text-slate-900">בוקר טוב, {userName}.</h2>
+            <h2 className="text-3xl font-black text-slate-900">NEMO - מערכת למידה</h2>
             <span className="text-blue-600 bg-blue-50 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
               NEMO Active
             </span>
