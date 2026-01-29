@@ -8,7 +8,9 @@ import {
     Settings,
     Fish,
     Zap,
-    BookOpen
+    BookOpen,
+    Lock,
+    FileSignature
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -55,6 +57,18 @@ export default function Sidebar() {
                     label="קהילה"
                     active={isActive('/community')}
                 />
+
+                {/* Locked Feature: Exam Analyst */}
+                <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400/60 cursor-not-allowed group relative">
+                    <span><FileSignature size={20} /></span>
+                    <span className="text-sm">תחקור מבחנים</span>
+                    <Lock size={14} className="mr-auto opacity-50" />
+
+                    {/* Tooltip */}
+                    <div className="absolute left-full ml-2 w-max px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        בקרוב (למנהלים בלבד)
+                    </div>
+                </div>
             </nav>
 
             <div className="p-4 border-t border-slate-100">
