@@ -16,12 +16,17 @@ import DeckCard from '@/components/DeckCard';
 
 const prisma = new PrismaClient();
 
-// TODO: Replace with real user ID from auth
-const HARDCODED_USER_EMAIL = 'student@example.com';
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 
-async function getDashboardData(query?: string) {
+// const prisma = new PrismaClient(); // Already imported above, ensuring singleton if possible or just use existing
+// Note: In a real app, use a singleton for PrismaClient. For now, assuming the existing import is fine or we use the global one if available.
+// The file has `const prisma = new PrismaClient();` on line 17.
+
+async function getDashboardData(userEmail: string, query?: string) {
   const user = await prisma.user.findUnique({
-    where: { email: HARDCODED_USER_EMAIL },
+    where: { email: userEmail },
     include: {
       decks: {
         where: query ? {
@@ -40,7 +45,11 @@ async function getDashboardData(query?: string) {
     }
   });
 
-  if (!user) return { decks: [], dueCount: 0, learnedCount: 0, streak: 0 };
+  if (!user) {
+    // User logged in but not found in DB? Should not happen with NextAuth + PrismaAdapter usually.
+    // But if it does, return empty or handle error.
+    return { decks: [], dueCount: 0, learnedCount: 0, streak: 0, memoryStrength: 0, weeklyHours: "0.0", chartData: [], userName: "סטודנט", activeDeckId: null };
+  }
 
   // Fetch Stats (Global stats should probably NOT be filtered by search, 
   // but if the user wants to "search" generally, maybe he wants to see stats for that search?
@@ -194,8 +203,14 @@ async function getDashboardData(query?: string) {
 }
 
 export default async function Home({ searchParams }: { searchParams: { q?: string } }) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    redirect('/login');
+  }
+
   const query = searchParams?.q || '';
-  const { decks, dueCount, learnedCount, streak, activeDeckId, memoryStrength, weeklyHours, chartData, userName } = await getDashboardData(query);
+  const { decks, dueCount, learnedCount, streak, activeDeckId, memoryStrength, weeklyHours, chartData, userName } = await getDashboardData(session.user.email, query);
 
   const stats = [
     { label: 'כרטיסיות שנלמדו', value: learnedCount.toLocaleString(), icon: <BookOpen size={20} />, color: 'text-blue-600', bg: 'bg-blue-50' },
