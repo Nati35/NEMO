@@ -24,6 +24,16 @@ async function getDueCards(deckId: string) {
         include: { images: true }
     });
 
+    // Fallback for Demo/Testing: If no cards are due, let user review anyway
+    // This prevents the "System Broken" feeling when a user just wants to see their cards.
+    if (cards.length === 0) {
+        return await prisma.card.findMany({
+            where: { deckId },
+            take: 20,
+            include: { images: true }
+        });
+    }
+
     // If still empty (e.g. user just did everything), maybe show all just for review?
     // Let's stick to due/new for "Smart" session.
     // If the user manually adds a card, it has interval 0, so it appears.
