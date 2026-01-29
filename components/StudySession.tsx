@@ -293,13 +293,13 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
 
                             {/* Media Content */}
                             {(currentCard.images && currentCard.images.length > 0) ? (
-                                <div className="mb-6 w-full flex-1 overflow-y-auto flex flex-col gap-4 min-h-0">
+                                <div className="mb-6 w-full flex-1 overflow-y-auto flex flex-col gap-4 min-h-0 items-center">
                                     {currentCard.images.map((img, idx) => (
-                                        <div key={idx} className="w-full flex justify-center h-full">
+                                        <div key={idx} className="w-full flex justify-center">
                                             <img
                                                 src={img.url}
                                                 alt={`Card visual ${idx + 1}`}
-                                                className="rounded-xl w-[90%] h-auto max-h-[85%] object-contain shadow-sm border-2 border-slate-700 bg-black/20"
+                                                className="rounded-xl w-[95%] h-auto object-contain shadow-sm border border-slate-700 bg-black/20"
                                             />
                                         </div>
                                     ))}
@@ -309,7 +309,7 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
                                     <img
                                         src={currentCard.imageUrl}
                                         alt="Card visual"
-                                        className="rounded-xl w-[90%] h-auto max-h-[85%] object-contain shadow-sm border-2 border-slate-700 bg-black/20"
+                                        className="rounded-xl w-[95%] h-auto object-contain shadow-sm border border-slate-700 bg-black/20"
                                     />
                                 </div>
                             )}
@@ -320,9 +320,11 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
                                 </div>
                             )}
 
-                            <p className="text-2xl md:text-4xl font-medium leading-relaxed">
-                                {currentCard.back}
-                            </p>
+                            <div className="w-full overflow-y-auto max-h-[40vh]"> {/* Scrollable text area if too long */}
+                                <p className="text-2xl md:text-3xl font-medium leading-relaxed break-words break-all px-4">
+                                    {currentCard.back}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
