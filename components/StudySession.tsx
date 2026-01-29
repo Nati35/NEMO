@@ -272,7 +272,7 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
                         >
                             <span className="absolute top-8 right-8 text-xs font-bold text-gray-400 uppercase tracking-widest">שאלה</span>
 
-                            <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight">
+                            <h2 className="text-2xl md:text-4xl font-black text-gray-900 leading-tight">
                                 {currentCard.front}
                             </h2>
                             <div className={`absolute bottom-8 text-sm font-medium text-gray-400 animate-pulse ${isFlipped ? "" : "opacity-100"}`}>
@@ -321,7 +321,7 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
                             )}
 
                             <div className="w-full overflow-y-auto max-h-[40vh]"> {/* Scrollable text area if too long */}
-                                <p className="text-2xl md:text-3xl font-medium leading-relaxed break-words break-all px-4">
+                                <p className="text-xl md:text-2xl font-medium leading-relaxed break-words px-4">
                                     {currentCard.back}
                                 </p>
                             </div>

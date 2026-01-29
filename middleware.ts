@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://*.vercel-scripts.com https://va.vercel-scripts.com;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.googleusercontent.com https://lh3.googleusercontent.com;
+    img-src 'self' blob: data: https://*.googleusercontent.com https://lh3.googleusercontent.com https://*.supabase.co;
     font-src 'self';
     object-src 'none';
     base-uri 'self';

@@ -43,7 +43,7 @@ export default function CardPreview({ card, onClose }: CardPreviewProps) {
                     {/* Front */}
                     <div className="space-y-3 text-center">
                         <span className="text-xs font-bold text-blue-500 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded">שאלה</span>
-                        <h2 className="text-3xl font-black text-gray-900 leading-snug dir-rtl">
+                        <h2 className="text-2xl font-black text-gray-900 leading-snug dir-rtl">
                             {card.front}
                         </h2>
                     </div>
