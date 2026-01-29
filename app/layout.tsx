@@ -12,6 +12,13 @@ export const metadata: Metadata = {
     description: "A minimalist Spaced Repetition System.",
 };
 
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    themeColor: '#ffffff',
+};
+
 import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers';
 
@@ -24,6 +31,7 @@ const THEME_STYLES: Record<string, string> = {
     sea: 'bg-cyan-50 text-cyan-900',
 };
 
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -50,6 +58,7 @@ export default async function RootLayout({
     return (
         <html lang="he" dir="rtl">
             <body className={`${inter.className} ${themeClass} antialiased min-h-screen flex overflow-hidden transition-colors duration-500`}>
+                <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
                 <Sidebar />
                 <div className="flex-1 flex flex-col h-screen overflow-hidden">
                     <TopHeader user={user} />

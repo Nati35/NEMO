@@ -62,7 +62,7 @@ export default function CardPreview({ card, onClose }: CardPreviewProps) {
                                         key={i}
                                         src={url}
                                         alt="media"
-                                        className="h-48 md:h-64 rounded-xl border border-gray-200 shadow-sm object-contain snap-center bg-gray-50"
+                                        className="w-[90%] h-auto max-h-[60vh] rounded-xl border border-gray-200 shadow-sm object-contain snap-center bg-gray-50"
                                     />
                                 ))}
                             </div>

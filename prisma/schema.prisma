@@ -33,6 +33,7 @@ model User {
 
   decks         Deck[]
   studySessions StudySession[]
+  notifications Notification[]
 }
 
 model Account {
@@ -135,4 +136,28 @@ model StudySession {
   rating    Int      // 1-4 (Again, Hard, Good, Easy)
   scheduledDate DateTime? // When it was supposed to be reviewed
   actualDate    DateTime  @default(now()) // When it was actually reviewed
+}
+
+enum NotificationType {
+  STUDY_REMINDER
+  SYSTEM_ALERT
+  ACHIEVEMENT
+  COMMUNITY
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      NotificationType
+  title     String
+  message   String
+  link      String?          // Action URL (e.g., /study/deck-id)
+  isRead    Boolean          @default(false)
+  
+  createdAt DateTime         @default(now())
+  
+  // Optional metadata for future use
+  metadata  Json?
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { NotificationBell } from './NotificationBell';
 import { Search, Bell } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback } from 'react';
@@ -36,10 +37,7 @@ export default function TopHeader({ user }: { user?: { name?: string | null, ima
             <div className="flex-1"></div>
 
             <div className="flex items-center gap-4">
-                <button className="p-2 text-slate-400 hover:text-slate-600 relative">
-                    <Bell size={20} />
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                </button>
+                <NotificationBell />
                 <div className="h-8 w-[1px] bg-slate-200 mx-2"></div>
                 <div className="flex items-center gap-3 cursor-pointer group">
                     <div className="text-left text-right">

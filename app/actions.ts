@@ -11,21 +11,30 @@ import { authOptions } from "@/lib/auth";
 
 // ... (prisma init) ...
 
+import { z } from 'zod';
+
+const CreateDeckSchema = z.object({
+    title: z.string().min(1, "Title is required").max(100),
+    description: z.string().max(500).optional(),
+    category: z.string().optional(),
+    isPublic: z.boolean().optional()
+});
+
 export async function createDeck(formData: FormData) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
         throw new Error('Unauthorized');
     }
 
-    const title = formData.get('title') as string
-    const description = formData.get('description') as string
-    const category = (formData.get('category') as string) || "כללי"
+    const rawData = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        category: formData.get('category') || "כללי",
+        isPublic: formData.get('isPublic') === 'on'
+    };
 
-    const isPublic = formData.get('isPublic') === 'on'
-
-    if (!title) {
-        throw new Error('Title is required')
-    }
+    // 1. Validate Input
+    const parsed = CreateDeckSchema.parse(rawData);
 
     // Find the real user
     const user = await prisma.user.findUnique({
@@ -39,29 +48,21 @@ export async function createDeck(formData: FormData) {
     try {
         await prisma.deck.create({
             data: {
-                title,
-                description,
-                category,
+                title: parsed.title,
+                description: parsed.description || "",
+                category: parsed.category,
                 userId: user.id,
-                isPublic
+                isPublic: parsed.isPublic
             } as any
         })
     } catch (e) {
         console.warn("Schema mismatch detected, falling back to legacy create", e);
-        await prisma.deck.create({
-            data: {
-                title,
-                description,
-                // Fallback to legacy schema (no category/isPublic if schema is old)
-                // Note: category might be required by DB but unknown to client... 
-                // Actually if sqlite file is locked, the DB struct MIGHT be old too? 
-                // Or if DB struct is new but client is old. 
-                // Safe bet: if old client, it doesn't know category exists.
-                // But if DB requires it? SQLite usually adds columns as nullable or default. 
-                // We added default("General"). So it should be fine.
-                userId: user.id
-            }
-        })
+        // Fallback logic could be kept or removed if we are sure schema is updated.
+        // For safety, I'll keep a simplified version or just throw since validation passed.
+        // Actually, if Schema mismatch is DB side (missing columns), this Zod parse won't help that.
+        // But Zod ensures we don't send garbage. 
+        // Let's rely on standard create.
+        throw e; // Standardizing behavior: fail if DB fails.
     }
 
     revalidatePath('/') // Refresh the dashboard to show the new deck
