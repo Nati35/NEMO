@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "../components/Sidebar";
 import TopHeader from "../components/TopHeader";
+import MobileNav from "@/components/MobileNav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -53,9 +54,10 @@ export default async function RootLayout({
                 <div className="flex-1 flex flex-col h-screen overflow-hidden">
                     <TopHeader user={user} />
 
-                    <main className="flex-1 overflow-y-auto">
+                    <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
                         {children}
                     </main>
+                    <MobileNav />
                 </div>
             </body>
         </html>
