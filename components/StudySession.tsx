@@ -7,6 +7,8 @@ import { calculateSM2, mapRatingToQuality } from "@/lib/sm2";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import Image from 'next/image';
 
 interface Card {
     id: string;
@@ -275,7 +277,24 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
                                 <div className="p-8 md:p-12 flex flex-col items-center justify-center text-center border-b border-gray-100 dark:border-gray-700 min-h-[30vh]">
                                     <span className="text-sm font-bold text-blue-500 mb-4 tracking-wider uppercase">Question</span>
                                     <div className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 leading-snug max-w-2xl markdown-content">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: ({ node, ...props }) => <span {...props} /> }}>
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            rehypePlugins={[rehypeRaw]}
+                                            components={{
+                                                p: ({ node, ...props }) => <span {...props} />,
+                                                img: ({ node, ...props }) => (
+                                                    <Image
+                                                        src={(props.src as string) || ''}
+                                                        alt={props.alt || ''}
+                                                        width={0}
+                                                        height={0}
+                                                        sizes="100vw"
+                                                        style={{ width: '100%', height: 'auto', borderRadius: '0.5rem', maxHeight: '50vh', objectFit: 'contain' }}
+                                                        className="mx-auto"
+                                                    />
+                                                )
+                                            }}
+                                        >
                                             {currentCard.front}
                                         </ReactMarkdown>
                                     </div>
@@ -290,7 +309,23 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
                                     >
                                         <span className="text-sm font-bold text-green-600 mb-4 tracking-wider uppercase">Answer</span>
                                         <div className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 leading-relaxed max-w-2xl whitespace-pre-wrap dir-rtl markdown-content">
-                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]}
+                                                rehypePlugins={[rehypeRaw]}
+                                                components={{
+                                                    img: ({ node, ...props }) => (
+                                                        <Image
+                                                            src={(props.src as string) || ''}
+                                                            alt={props.alt || ''}
+                                                            width={0}
+                                                            height={0}
+                                                            sizes="100vw"
+                                                            style={{ width: '100%', height: 'auto', borderRadius: '0.5rem', maxHeight: '50vh', objectFit: 'contain' }}
+                                                            className="mx-auto"
+                                                        />
+                                                    )
+                                                }}
+                                            >
                                                 {currentCard.back}
                                             </ReactMarkdown>
                                         </div>

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import Image from 'next/image';
 
 interface CardPreviewProps {
     card: {
@@ -47,7 +48,24 @@ export default function CardPreview({ card, onClose }: CardPreviewProps) {
                     <div className="space-y-3 text-center">
                         <span className="text-xs font-bold text-blue-500 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded">שאלה</span>
                         <h2 className="text-2xl font-black text-gray-900 leading-snug dir-rtl">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={{ p: ({ node, ...props }) => <span {...props} /> }}>
+                            <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                rehypePlugins={[rehypeRaw]}
+                                components={{
+                                    p: ({ node, ...props }) => <span {...props} />,
+                                    img: ({ node, ...props }) => (
+                                        <Image
+                                            src={props.src || ''}
+                                            alt={props.alt || ''}
+                                            width={0}
+                                            height={0}
+                                            sizes="100vw"
+                                            style={{ width: '100%', height: 'auto', maxHeight: '50vh', objectFit: 'contain' }}
+                                            className="mx-auto rounded-lg"
+                                        />
+                                    )
+                                }}
+                            >
                                 {card.front}
                             </ReactMarkdown>
                         </h2>
@@ -88,8 +106,25 @@ export default function CardPreview({ card, onClose }: CardPreviewProps) {
                             </div>
                         )}
 
-                        <div className="text-xl md:text-2xl font-medium text-gray-700 leading-relaxed dir-rtl whitespace-pre-wrap [&_img]:max-h-[50vh] [&_img]:rounded-lg [&_img]:mx-auto [&_a]:text-blue-600 [&_a]:underline">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={{ p: ({ node, ...props }) => <span {...props} /> }}>
+                        <div className="text-xl md:text-2xl font-medium text-gray-700 leading-relaxed dir-rtl whitespace-pre-wrap [&_a]:text-blue-600 [&_a]:underline">
+                            <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                rehypePlugins={[rehypeRaw]}
+                                components={{
+                                    p: ({ node, ...props }) => <span {...props} />,
+                                    img: ({ node, ...props }) => (
+                                        <Image
+                                            src={props.src || ''}
+                                            alt={props.alt || ''}
+                                            width={0}
+                                            height={0}
+                                            sizes="100vw"
+                                            style={{ width: '100%', height: 'auto', maxHeight: '50vh', objectFit: 'contain' }}
+                                            className="mx-auto rounded-lg"
+                                        />
+                                    )
+                                }}
+                            >
                                 {card.back}
                             </ReactMarkdown>
                         </div>
