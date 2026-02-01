@@ -8,8 +8,18 @@ import MobileNav from "@/components/MobileNav";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "NEMO - Learning, Simply.",
-    description: "A minimalist Spaced Repetition System.",
+    title: {
+        default: "NEMO - Learn Smarter",
+        template: "%s | NEMO"
+    },
+    description: "The ultimate platform for spaced repetition learning. Create flashcards, master topics, and track your progress in a gamified way.",
+    openGraph: {
+        type: "website",
+        siteName: "NEMO",
+        title: "NEMO - Learn Smarter",
+        description: "Master any topic with AI-powered flashcards and spaced repetition.",
+    },
+    metadataBase: new URL('https://nemo-app.vercel.app'), // Placeholder, usually auto-handled or env
 };
 
 export const viewport = {
