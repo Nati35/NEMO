@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 interface StudyCardProps {
     front: string;
@@ -23,7 +26,7 @@ export default function StudyCard({ front, back, onRate }: StudyCardProps) {
         setShowRatings(false);
         setIsFlipped(false);
         onRate(rating); // Parent handles loading next card
-        // Reset state after animation (could improve this with exit animations)
+        // Reset state after animation
     };
 
     return (
@@ -37,22 +40,26 @@ export default function StudyCard({ front, back, onRate }: StudyCardProps) {
                 <div className={`relative w-full h-full transition-transform duration-500 preserve-3d shadow-2xl rounded-3xl ${isFlipped ? "rotate-y-180" : ""}`}>
 
                     {/* Front */}
-                    <div className="absolute inset-0 bg-white rounded-3xl p-8 md:p-12 flex flex-col items-center justify-center text-center backface-hidden border border-gray-100">
+                    <div className="absolute inset-0 bg-white rounded-3xl p-8 md:p-12 flex flex-col items-center justify-center text-center backface-hidden border border-gray-100 overflow-y-auto snippet-scroll">
                         <span className="absolute top-6 right-6 text-xs font-bold text-gray-400 uppercase tracking-widest">שאלה</span>
-                        <h2 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
-                            {front}
-                        </h2>
+                        <div className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight dir-rtl w-full">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={{ p: ({ node, ...props }) => <span {...props} /> }}>
+                                {front}
+                            </ReactMarkdown>
+                        </div>
                         <div className="absolute bottom-6 text-sm font-medium text-gray-400 animate-pulse">
                             לחץ כדי להפוך
                         </div>
                     </div>
 
                     {/* Back */}
-                    <div className="absolute inset-0 bg-slate-900 rounded-3xl p-8 md:p-12 flex flex-col items-center justify-center text-center backface-hidden rotate-y-180 text-white">
+                    <div className="absolute inset-0 bg-slate-900 rounded-3xl p-8 md:p-12 flex flex-col items-center justify-center text-center backface-hidden rotate-y-180 text-white overflow-y-auto snippet-scroll">
                         <span className="absolute top-6 right-6 text-xs font-bold text-slate-500 uppercase tracking-widest">תשובה</span>
-                        <p className="text-xl md:text-3xl font-medium leading-relaxed">
-                            {back}
-                        </p>
+                        <div className="text-xl md:text-3xl font-medium leading-relaxed dir-rtl w-full [&_a]:text-blue-400 [&_a]:underline [&_img]:max-h-[50vh] [&_img]:rounded-lg [&_img]:mx-auto">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                {back}
+                            </ReactMarkdown>
+                        </div>
                     </div>
                 </div>
             </div>

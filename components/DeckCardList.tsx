@@ -29,7 +29,7 @@ export default function DeckCardList({ deckId, initialCards }: DeckCardListProps
 
     const handleAddCard = async (front: string, back: string, imageUrls?: string[], audioUrl?: string) => {
         await createCard(deckId, front, back, imageUrls, audioUrl);
-        // setIsAdding(false); // Optional
+        setIsAdding(false);
     };
 
     const handleUpdateCard = async (front: string, back: string, imageUrls?: string[], audioUrl?: string) => {
@@ -46,6 +46,13 @@ export default function DeckCardList({ deckId, initialCards }: DeckCardListProps
         if (confirm('Are you sure you want to delete this card?')) {
             await deleteCard(id);
         }
+    };
+
+    const getPreviewText = (text: string) => {
+        if (!text) return '';
+        // Replace image markdown with a friendly placeholder
+        const stripped = text.replace(/!\[.*?\]\(.*?\)/g, ' 🖼️ [תמונה] ');
+        return stripped.length > 80 ? stripped.substring(0, 80) + '...' : stripped;
     };
 
     return (
@@ -113,19 +120,19 @@ export default function DeckCardList({ deckId, initialCards }: DeckCardListProps
                             onClick={() => setPreviewCard(card)}
                             className={`group bg-white border p-5 rounded-2xl flex justify-between items-center hover:shadow-md transition-all cursor-pointer ${card.isSuspended ? 'border-amber-200 bg-amber-50/50 opacity-75' : 'border-gray-100'}`}
                         >
-                            <div className="flex-1 grid grid-cols-2 gap-4">
-                                <div className="font-medium text-gray-900 border-l-2 border-blue-500 pl-4 Pointer-events-none">
-                                    {card.front}
+                            <div className="flex-1 grid grid-cols-2 gap-4 overflow-hidden">
+                                <div className="font-medium text-gray-900 border-l-2 border-blue-500 pl-4 pointer-events-none truncate">
+                                    {getPreviewText(card.front)}
                                     {card.isSuspended && <span className="mr-2 text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">מוקפא</span>}
                                 </div>
-                                <div className="text-gray-600 border-l-2 border-gray-200 pl-4 group-hover:border-blue-200 transition-colors flex items-center gap-2 pointer-events-none">
-                                    {card.back}
-                                    {(card.images?.length ?? 0) > 0 && <span className="text-xs text-gray-400 font-mono">[{card.images!.length} תמונות]</span>}
+                                <div className="text-gray-600 border-l-2 border-gray-200 pl-4 group-hover:border-blue-200 transition-colors flex items-center gap-2 pointer-events-none truncate">
+                                    {getPreviewText(card.back)}
+                                    {(card.images?.length ?? 0) > 0 && <span className="text-xs text-gray-400 font-mono">[{card.images!.length} תמונות old]</span>}
                                     {card.audioUrl && <span className="text-xs text-gray-400">🎵</span>}
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mr-4">
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mr-4 shrink-0">
                                 <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                                     <Eye size={18} />
                                 </button>

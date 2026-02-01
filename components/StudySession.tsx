@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { saveCardReview } from "@/app/actions/saveReview";
 import { calculateSM2, mapRatingToQuality } from "@/lib/sm2";
+import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Card {
     id: string;
@@ -217,7 +220,7 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
     const progress = ((currentIndex) / sessionCards.length) * 100;
 
     return (
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto px-4 py-6 flex flex-col h-[calc(100vh-100px)]">
             {/* Header */}
             <div className="flex items-center justify-between mb-8 md:mb-12">
                 <Link href={`/decks/${deckId}`} className="text-gray-400 hover:text-gray-900 transition-colors flex items-center gap-2 font-medium">
@@ -248,111 +251,109 @@ export default function StudySession({ cards, deckId }: { cards: Card[], deckId:
                 </div>
             )}
 
-            {/* Card Container */}
-            <div className="flex flex-col items-center justify-center min-h-[50vh]">
-                <div
-                    onClick={handleFlip}
-                    className="relative w-full max-w-2xl aspect-[4/3] md:aspect-[16/10] cursor-pointer group select-none"
-                    style={{ perspective: "1000px" }}
-                >
-                    <div
-                        className="relative w-full h-full transition-transform duration-500 shadow-2xl shadow-blue-900/5 rounded-[2rem]"
-                        style={{
-                            transformStyle: "preserve-3d",
-                            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)"
-                        }}
+            {/* Main Card Area */}
+            <div className="flex-1 flex flex-col justify-center perspective-1000 min-h-0 relative">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={currentCard.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="relative w-full h-full flex flex-col"
                     >
-                        {/* Front */}
+                        {/* Card Container */}
                         <div
-                            className="absolute inset-0 bg-white rounded-[2rem] p-6 md:p-12 flex flex-col items-center justify-center text-center border border-gray-100"
-                            style={{
-                                backfaceVisibility: "hidden",
-                                WebkitBackfaceVisibility: "hidden"
-                            }}
+                            className={`
+                            relative w-full bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700
+                            transition-all duration-500 overflow-hidden flex flex-col
+                             min-h-[50vh] md:min-h-[60vh] max-h-[70vh]
+                        `}
                         >
-                            <span className="absolute top-8 right-8 text-xs font-bold text-gray-400 uppercase tracking-widest">שאלה</span>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar" onClick={handleFlip}>
+                                {/* Front Content (Question) - Always Visible */}
+                                <div className="p-8 md:p-12 flex flex-col items-center justify-center text-center border-b border-gray-100 dark:border-gray-700 min-h-[30vh]">
+                                    <span className="text-sm font-bold text-blue-500 mb-4 tracking-wider uppercase">Question</span>
+                                    <div className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 leading-snug max-w-2xl markdown-content">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: ({ node, ...props }) => <span {...props} /> }}>
+                                            {currentCard.front}
+                                        </ReactMarkdown>
+                                    </div>
+                                </div>
 
-                            <h2 className="text-2xl md:text-4xl font-black text-gray-900 leading-tight">
-                                {currentCard.front}
-                            </h2>
-                            <div className={`absolute bottom-8 text-sm font-medium text-gray-400 animate-pulse ${isFlipped ? "" : "opacity-100"}`}>
-                                לחץ רווח להפיכה
-                            </div>
-                        </div>
-
-                        {/* Back */}
-                        <div
-                            className="absolute inset-0 bg-slate-900 rounded-[2rem] p-8 md:p-16 flex flex-col items-center justify-center text-center text-white"
-                            style={{
-                                backfaceVisibility: "hidden",
-                                WebkitBackfaceVisibility: "hidden",
-                                transform: "rotateY(180deg)"
-                            }}
-                        >
-                            <span className="absolute top-8 right-8 text-xs font-bold text-slate-500 uppercase tracking-widest">תשובה</span>
-
-                            {/* Media Content */}
-                            {(currentCard.images && currentCard.images.length > 0) ? (
-                                <div className="mb-6 w-full flex-1 overflow-y-auto flex flex-col gap-4 min-h-0 items-center">
-                                    {currentCard.images.map((img, idx) => (
-                                        <div key={idx} className="w-full flex justify-center">
-                                            <img
-                                                src={img.url}
-                                                alt={`Card visual ${idx + 1}`}
-                                                className="rounded-xl w-[95%] h-auto object-contain shadow-sm border border-slate-700 bg-black/20"
-                                            />
+                                {/* Back Content (Answer) - Revealed on Flip */}
+                                {isFlipped && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        className="p-8 md:p-12 flex flex-col items-center justify-center text-center bg-slate-50 dark:bg-gray-900/50"
+                                    >
+                                        <span className="text-sm font-bold text-green-600 mb-4 tracking-wider uppercase">Answer</span>
+                                        <div className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 leading-relaxed max-w-2xl whitespace-pre-wrap dir-rtl markdown-content">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {currentCard.back}
+                                            </ReactMarkdown>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : currentCard.imageUrl && (
-                                <div className="mb-6 w-full flex-1 flex justify-center min-h-0 items-center">
-                                    <img
-                                        src={currentCard.imageUrl}
-                                        alt="Card visual"
-                                        className="rounded-xl w-[95%] h-auto object-contain shadow-sm border border-slate-700 bg-black/20"
-                                    />
-                                </div>
-                            )}
 
-                            {currentCard.audioUrl && (
-                                <div className="mb-4 w-full flex justify-center">
-                                    <audio controls src={currentCard.audioUrl} className="w-full max-w-xs" />
-                                </div>
-                            )}
+                                        {currentCard.audioUrl && (
+                                            <div className="mt-6 w-full flex justify-center">
+                                                <audio controls src={currentCard.audioUrl} className="w-full max-w-xs" />
+                                            </div>
+                                        )}
 
-                            <div className="w-full overflow-y-auto max-h-[40vh]"> {/* Scrollable text area if too long */}
-                                <p className="text-xl md:text-2xl font-medium leading-relaxed break-words px-4">
-                                    {currentCard.back}
-                                </p>
+                                        {(() => {
+                                            const hasInlineImages = /!\[.*?\]\(.*?\)/.test(currentCard.front + currentCard.back);
+                                            if (hasInlineImages) return null;
+
+                                            if (currentCard.images && currentCard.images.length > 0) {
+                                                return (
+                                                    <div className="mt-6 flex flex-wrap justify-center gap-4 w-full">
+                                                        {currentCard.images.map((img, i) => (
+                                                            <img
+                                                                key={i}
+                                                                src={img.url}
+                                                                alt="Visual aid"
+                                                                className="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 w-auto h-auto max-h-[40vh] object-contain cursor-zoom-in hover:scale-105 transition-transform bg-white"
+                                                                onClick={(e) => { e.stopPropagation(); window.open(img.url, '_blank'); }}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )
+                                            }
+                                            return null;
+                                        })()}
+                                    </motion.div>
+                                )}
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Ratings Bar */}
-                <div className={`mt-12 grid grid-cols-4 gap-4 w-full max-w-2xl transition-all duration-500 transform ${showRatings ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"}`}>
-                    {[
-                        { label: "שכחתי", color: "bg-rose-50 text-rose-600 hover:bg-rose-100 ring-1 ring-rose-100", rating: 1, key: "1" },
-                        { label: "קשה", color: "bg-orange-50 text-orange-600 hover:bg-orange-100 ring-1 ring-orange-100", rating: 2, key: "2" },
-                        { label: "טוב", color: "bg-blue-50 text-blue-600 hover:bg-blue-100 ring-1 ring-blue-100", rating: 3, key: "3" },
-                        { label: "קל", color: "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 ring-1 ring-emerald-100", rating: 4, key: "4" },
-                    ].map((btn, i) => (
-                        <button
-                            key={btn.rating}
-                            onClick={(e) => { e.stopPropagation(); handleRate(btn.rating); }}
-                            className={`relative py-6 rounded-2xl font-bold text-lg transition-all hover:scale-105 active:scale-95 shadow-sm hover:shadow-md ${btn.color} flex flex-col items-center justify-center gap-1 group`}
-                            style={{ transitionDelay: `${i * 50}ms` }}
-                            title={`קיצור מקלדת: ${btn.key}`}
-                        >
-                            <span className="absolute top-2 right-3 text-[10px] font-mono opacity-40 border border-current px-1 rounded">{btn.key}</span>
-                            <span>{btn.label}</span>
-                            <span className="text-xs opacity-70 font-medium tracking-wide block">
-                                {getIntervalLabel(btn.rating)}
-                            </span>
-                        </button>
-                    ))}
-                </div>
+                        {/* Ratings Bar - Outside the card */}
+                        <div className={`mt-6 grid grid-cols-4 gap-3 md:gap-4 w-full transition-all duration-500 transform ${showRatings ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"}`}>
+                            {[
+                                { label: "שכחתי", color: "bg-rose-50 text-rose-600 hover:bg-rose-100 ring-1 ring-rose-100", rating: 1, key: "1" },
+                                { label: "קשה", color: "bg-orange-50 text-orange-600 hover:bg-orange-100 ring-1 ring-orange-100", rating: 2, key: "2" },
+                                { label: "טוב", color: "bg-blue-50 text-blue-600 hover:bg-blue-100 ring-1 ring-blue-100", rating: 3, key: "3" },
+                                { label: "קל", color: "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 ring-1 ring-emerald-100", rating: 4, key: "4" },
+                            ].map((btn, i) => (
+                                <button
+                                    key={btn.rating}
+                                    onClick={(e) => { e.stopPropagation(); handleRate(btn.rating); }}
+                                    className={`relative py-4 md:py-6 rounded-2xl font-bold text-md md:text-lg transition-all hover:scale-105 active:scale-95 shadow-sm hover:shadow-md ${btn.color} flex flex-col items-center justify-center gap-1 group`}
+                                    style={{ transitionDelay: `${i * 50}ms` }}
+                                    title={`קיצור מקלדת: ${btn.key}`}
+                                >
+                                    <span className="absolute top-1 right-2 md:top-2 md:right-3 text-[10px] font-mono opacity-40 border border-current px-1 rounded">{btn.key}</span>
+                                    <span>{btn.label}</span>
+                                    <span className="text-[10px] md:text-xs opacity-70 font-medium tracking-wide block">
+                                        {getIntervalLabel(btn.rating)}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
             </div>
+
         </div>
     );
 }
